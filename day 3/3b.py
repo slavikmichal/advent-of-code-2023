@@ -1,79 +1,59 @@
-def containsSymbol(part: str):
-    for char in part:
-        if char == '*':
-            return True
-    return False
+def getNumber(matrix, row, column):
+    index = column 
+    while index > 0 and str(matrix[row][index]).isdigit() and (str(matrix[row][index-1]).isdigit()):
+        index -= 1
+    
+    part = ""
 
-def getNumbers(matrix: [[]]):
+    while index < len(matrix[row]) and (str(matrix[row][index])).isdigit():
+        part += str(matrix[row][index])
+        index += 1
+
+    if part == "":
+        return -1
+    return int(part)
+
+def getNumbers(matrix, row, column):
     parts = []
-    partNo = ""
-    for row in range(len(matrix)):
-        for column in range(len(matrix[row])):
-            if (str(matrix[row][column]).isdigit()):
-                partNo += matrix[row][column]
-                continue
-            elif ((matrix[row][column] == ".")) and len(partNo) > 0:
-                #check surroundings
-                bottom = column - len(partNo) - 1 if ((column - len(partNo) - 1) > 0) else 0 
-                top = column + 1 if (column < len(matrix[row]) - 1) else column
+    if row > 0:
+        if not matrix[row - 1][column].isdigit():
+            if column > 0:
+                parts.append(getNumber(matrix, row - 1, column - 1))
+            if column < len(matrix[row-1]):
+                parts.append(getNumber(matrix, row - 1, column + 1))
+        else:
+            parts.append(getNumber(matrix, row - 1, column))
+    if column > 0:
+        parts.append(getNumber(matrix, row, column -1))
+    if column < len(matrix[row]) - 1:
+        parts.append(getNumber(matrix, row, column +1))
+    if row < len(matrix) - 1: 
+        if not matrix[row + 1][column].isdigit():
+            if column > 0:
+                parts.append(getNumber(matrix, row + 1, column - 1))
+            if column < len(matrix[row-1]):
+                parts.append(getNumber(matrix, row + 1, column + 1))
+        else:
+            parts.append(getNumber(matrix, row + 1, column))
 
-                if (row > 0) and containsSymbol(str(matrix[row-1][bottom:top])):
-                    parts.append(int(partNo))
-                    partNo = ""
-                    continue
-                elif containsSymbol(str(matrix[row][bottom:top])):
-                    parts.append(int(partNo))
-                    partNo = ""
-                    continue
-                elif (row < len(matrix) - 1) and containsSymbol(str(matrix[row+1][bottom:top])):
-                    parts.append(int(partNo))
-                    partNo = ""
-                    continue
-                partNo = ""
-                continue
-            elif ('*' == matrix[row][column]) and (len(partNo) > 0):
-                parts.append(int(partNo))
-                partNo = ""
-                continue
-        if (len(partNo) > 0):
-            #check surroundings
-            bottom = column - len(partNo) if ((column - len(partNo)) > 0) else 0 
-            top = column + 1 if (column < len(matrix[row]) - 1) else column
-            if (row > 0) and containsSymbol(str(matrix[row-1][bottom:top])):
-                parts.append(int(partNo))
-                partNo = ""
-            elif containsSymbol(str(matrix[row][bottom:top])):
-                parts.append(int(partNo))
-                partNo = ""
-            elif (row < len(matrix) - 1) and containsSymbol(str(matrix[row+1][bottom:top])):
-                parts.append(int(partNo))
-                partNo = ""
-        partNo = ""
+    for i in range(parts.count(-1)):
+        parts.remove(-1)
+    
     return parts
+
 
 def getSum(matrix: [[]]):
     sum = 0
     for row in range(len(matrix)):
         for column in range(len(matrix[row])):
             if (str(matrix[row][column]) == '*'):
-                west = column - 3 if (column - 3 > 0) else 0
-                east = column + 3 if (column < len(matrix[row]) - 3) else len(matrix[row])
-                north = row - 1 if row > 0 else 0
-                south = row + 1 if row < len(matrix) - 1 else len(matrix)
-
-                new = []
-                for i in range(north, south + 1):
-                    new.append(matrix[i][west:east + 1])
-
-                adjacent = getNumbers(new)
-                print(adjacent)
-
+                adjacent = getNumbers(matrix, row, column)
                 if len(adjacent) == 2:
                     sum += adjacent[0] * adjacent[1]
     return sum
 
 if __name__ == "__main__":
-    file = open("3test2.txt", "r")
+    file = open("3.txt", "r")
     matrix = []
     while True:
         line = file.readline()
@@ -82,5 +62,3 @@ if __name__ == "__main__":
         matrix.append(line.removesuffix('\n'))
     result = getSum(matrix)
     print(result)
-
-#74115253 too low
